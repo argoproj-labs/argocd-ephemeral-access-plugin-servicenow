@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: controller
+  namespace: argocd-ephemeral-access
+spec:
+  template:
+    spec:
+      initContainers:
+        - name: plugin-installer
+          image: CHANGE_THIS_TO_POINT_TO_YOUR_PLUGIN_IMAGE
+          env:
+            - name: PLUGIN_PATH
+              value: /workspace/plugin
+          volumeMounts:
+            - name: plugins
+              mountPath: /tmp/plugin/
+      containers:
+        - name: controller
+          env:
+            - name: EPHEMERAL_ACCESS_EXTENSION_NAMESPACE
+              value: argocd-ephemeral-access
+            - name: SERVICENOW_SECRET_NAME
+              value: servicenow-secret
+            - name: SERVICENOW_URL
+              value: CHANGE_THIS_TO_POINT_TO_YOUR_SERVICENOW_URL
+            - name: TIME_WINDOW_CHANGES_DAYS
+              value: "7"
+            - name: TIMEZONE
+              value: CHANGE_THIS_TO_THE_TIMEZONE_IN_SERVICE_NOW
+            - name: CI_LABEL
+              value: ciName
+            - name: EPHEMERAL_PLUGIN_PATH
+              value: /tmp/plugin/plugin
+          volumeMounts:
+            - name: plugins
+              mountPath: /tmp/plugin/
+      volumes:
+        - emptyDir: {}
+          name: plugins

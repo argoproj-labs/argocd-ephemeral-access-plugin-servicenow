@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: remove-accessrequest-job-sa
+  namespace: argocd
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: remove-accessrequest-job-role
+  namespace: argocd
+rules:
+- apiGroups:
+  - ephemeral-access.argoproj-labs.io
+  resources:
+  - accessrequests
+  verbs:
+  - delete
+- apiGroups:
+  - batch
+  resources:
+  - cronjobs
+  verbs:
+  - delete
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: remove-accessrequest-job-role-binding
+  namespace: argocd
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: remove-accessrequest-job-role
+subjects:
+- kind: ServiceAccount
+  name: remove-accessrequest-job-sa
